@@ -89,6 +89,7 @@ log.info('warming up')
 log.info(nlu.predict('查询移民融入服务站及相关信息'))
 log.info('warm up finish. Waiting for messages')
 
+
 def clean_log():
     path = 'log/'
     for i in os.listdir(path):
@@ -98,7 +99,7 @@ def clean_log():
         timestamp = strftime("%Y%m%d%H%M%S", gmtime())
         # 获取日志的年月，和今天的年月
         today_m = int(timestamp[4:6])  # 今天的月份
-        file_m = int(i[13:15])  # 日志的月份
+        file_m = int(i[12:14])  # 日志的月份
         today_y = int(timestamp[0:4])  # 今天的年份
         file_y = int(i[7:11])  # 日志的年份
         # 对上个月的日志进行清理，即删除。
@@ -114,6 +115,7 @@ def clean_log():
 @csrf_exempt
 def intent_cls(request):
     # print(request.method)
+    log.info('*' * 5 + 'clean log' + '*' * 5)
     clean_log()
     log.info('-----------------------------------------------------------')
     if request.method == 'GET':
