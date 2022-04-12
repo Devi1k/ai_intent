@@ -1,5 +1,6 @@
 import re
-import torch
+
+import numpy as np
 
 
 def is_slot_da(da):
@@ -71,10 +72,13 @@ def recover_intent(dataloader, intent_logits, ori_word_seq, new2ori):
     # max_seq_len = tag_logits.size(0)
     das = []
     # 还原dialog act
-    for j in range(dataloader.intent_dim):
-        if intent_logits[j] > 0:
-            intent = dataloader.id2intent[j]
-            das.append([intent])
+    # for j in range(dataloader.intent_dim):
+    #     if intent_logits[j] > 0:
+    #         intent = dataloader.id2intent[j]
+    #         das.append([intent])
+    index = np.argmax(intent_logits)
+    intent = dataloader.id2intent[index]
+    das.append([intent])
     # tags = []
     # 还原tag
     # for j in range(1 , max_seq_len -1):

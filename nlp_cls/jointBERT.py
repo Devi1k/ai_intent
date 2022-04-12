@@ -40,8 +40,8 @@ class JointBERT(nn.Module):
                 # self.slot_classifier = nn.Linear(self.bert.config.hidden_size, self.slot_num_labels)
         nn.init.xavier_uniform_(self.intent_classifier.weight)
         # nn.init.xavier_uniform_(self.slot_classifier.weight)
-
-        self.intent_loss_fct = torch.nn.BCEWithLogitsLoss(pos_weight=self.intent_weight)
+        self.layer_norm = nn.LayerNorm(self.hidden_units)
+        self.intent_loss_fct = torch.nn.CrossEntropyLoss()
         # self.slot_loss_fct = torch.nn.CrossEntropyLoss()
 
     def forward(self, word_seq_tensor, word_mask_tensor,intent_tensor=None, context_seq_tensor=None, context_mask_tensor=None):
@@ -92,7 +92,7 @@ class JointBERT(nn.Module):
 
         # pooled_output 用于预测（request）是否可以用当前dialogue act label  无value
         # 二分类
-        pooled_output = self.dropout(pooled_output)
+        pooled_output = self.dropout(self.layer_norm(pooled_output))
         intent_logits = self.intent_classifier(pooled_output)
         outputs = (intent_logits,)
 
@@ -105,7 +105,7 @@ class JointBERT(nn.Module):
         #     outputs = outputs + (slot_loss,)
 
         if intent_tensor is not None:
-            intent_loss = self.intent_loss_fct(intent_logits, intent_tensor)
+            intent_loss = self.intent_loss_fct(intent_logits, intent_tensor.long().squeeze())
             outputs = outputs + (intent_loss,)
 
         return outputs  # intent_logits, (intent_loss),

@@ -34,7 +34,7 @@ class BERTNLU(NLU):
         config_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                    'config/{}'.format(config_file))
         config = json.load(open(config_file))
-        DEVICE = config['DEVICE'] if torch.cuda.is_available() else 'cpu'
+        DEVICE = 'cpu'
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         data_dir = os.path.join(root_dir, config['data_dir'])
         output_dir = os.path.join(root_dir, config['output_dir'])
@@ -78,15 +78,17 @@ class BERTNLU(NLU):
         intent_logits = self.model.forward(word_seq_tensor, word_mask_tensor,
                                            context_seq_tensor=context_seq_tensor,
                                            context_mask_tensor=context_mask_tensor)[0]
+        intent_logits = intent_logits.detach().cpu().numpy()
         intent = recover_intent(self.dataloader, intent_logits[0],
                                 batch_data[0][0], batch_data[0][-4])
+        log.info(intent)
         return intent[0][0]
 
 
 log.info('model loading')
 nlu = BERTNLU(config_file='crosswoz_all.json')
 log.info('warming up')
-log.info(nlu.predict('查询移民融入服务站及相关信息'))
+log.info('text:人才绿卡A卡的办理条件,intent:{}'.format(nlu.predict('人才绿卡A卡的办理条件')))
 log.info('warm up finish. Waiting for messages')
 
 
@@ -121,7 +123,7 @@ def intent_cls(request):
     if request.method == 'GET':
         raw_text = request.GET.get('text')
         intent = nlu.predict(raw_text)
-        log.info(intent)
+        log.info('text:{},intent:{}'.format(raw_text, intent))
         return JsonResponse({'message': 'success', 'data': intent, 'code': 0})
     return JsonResponse({'message': 'unknown methods',
                          'code': 50012})

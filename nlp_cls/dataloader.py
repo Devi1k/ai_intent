@@ -1,13 +1,13 @@
+import math
+import random
+
 import numpy as np
 import torch
-import random
 from transformers import BertTokenizer
-import math
-from collections import Counter
 
 
 class Dataloader:
-    def __init__(self, intent_vocab,  pretrained_weights):
+    def __init__(self, intent_vocab, pretrained_weights):
         """
         :param intent_vocab: list of all intents
         :param tag_vocab: list of all tags
@@ -78,9 +78,9 @@ class Dataloader:
                 self.intent_weight[intent_id] = np.log10(neg_pos)
             self.intent_weight = torch.tensor(self.intent_weight)
         print('max sen bert len', max_sen_len)
-        print(sorted(Counter(sen_len).items()))
+        # print(sorted(Counter(sen_len).items()))
         print('max context bert len', max_context_len)
-        print(sorted(Counter(context_len).items()))
+        # print(sorted(Counter(context_len).items()))
 
     def bert_tokenize(self, word_seq):
         split_tokens = []
