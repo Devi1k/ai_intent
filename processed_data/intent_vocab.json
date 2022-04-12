@@ -1,6 +1,6 @@
 [
     "QA",
-    "diagnose",
     "IR",
+    "diagnose",
     "NLI"
 ]
