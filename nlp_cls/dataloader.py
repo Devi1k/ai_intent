@@ -121,7 +121,7 @@ class Dataloader:
         word_seq_tensor = torch.zeros((batch_size, max_seq_len), dtype=torch.long)
         # tag_mask_tensor = torch.zeros((batch_size, max_seq_len), dtype=torch.long)
         # tag_seq_tensor = torch.zeros((batch_size, max_seq_len), dtype=torch.long)
-        intent_tensor = torch.zeros((batch_size, self.intent_dim), dtype=torch.float)
+        intent_tensor = torch.zeros((batch_size, 1), dtype=torch.float)
         context_max_seq_len = max([len(x[-4]) for x in batch_data])
         context_mask_tensor = torch.zeros((batch_size, context_max_seq_len), dtype=torch.long)
         context_seq_tensor = torch.zeros((batch_size, context_max_seq_len), dtype=torch.long)
@@ -137,7 +137,7 @@ class Dataloader:
             word_mask_tensor[i, :sen_len] = torch.LongTensor([1] * sen_len)
             # tag_mask_tensor[i, 1:sen_len-1] = torch.LongTensor([1] * (sen_len-2))
             for j in intents:
-                intent_tensor[i, j] = 1.
+                intent_tensor[i] = j
             context_len = len(batch_data[i][-4])
             context_seq_tensor[i, :context_len] = torch.LongTensor([batch_data[i][-4]])
             context_mask_tensor[i, :context_len] = torch.LongTensor([1] * context_len)

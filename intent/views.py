@@ -29,12 +29,12 @@ log.addHandler(log_file_handler)
 
 
 class BERTNLU(NLU):
-    def __init__(self, config_file='crosswoz_all.json'):
+    def __init__(self, config_file='crosswoz_all.json', model_file='bert_crosswoz.zip'):
         # assert mode == 'usr' or mode == 'sys' or mode == 'all'
         config_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                    'config/{}'.format(config_file))
         config = json.load(open(config_file))
-        DEVICE = 'cpu'
+        DEVICE = config['DEVICE']
         root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         data_dir = os.path.join(root_dir, config['data_dir'])
         output_dir = os.path.join(root_dir, config['output_dir'])
@@ -49,6 +49,15 @@ class BERTNLU(NLU):
         print('intent num:', len(intent_vocab))
 
         best_model_path = os.path.join(output_dir, 'pytorch_model.bin')
+        # if not os.path.exists(best_model_path):
+        #     if not os.path.exists(output_dir):
+        #         os.makedirs(output_dir)
+        #     print('Load from model_file param')
+        #     # archive_file = cached_path(model_file)
+        #     archive_file = os.path.join(output_dir, model_file)
+        #     archive = zipfile.ZipFile(archive_file, 'r')
+        #     archive.extractall(root_dir)
+        #     archive.close()
         print('Load from', best_model_path)
         model = JointBERT(config['model'], DEVICE, dataloader.intent_dim)
         model.load_state_dict(torch.load(os.path.join(output_dir, 'pytorch_model.bin'), DEVICE))
@@ -81,8 +90,7 @@ class BERTNLU(NLU):
         intent_logits = intent_logits.detach().cpu().numpy()
         intent = recover_intent(self.dataloader, intent_logits[0],
                                 batch_data[0][0], batch_data[0][-4])
-        log.info(intent)
-        return intent[0][0]
+        return intent
 
 
 log.info('model loading')
